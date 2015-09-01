@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perspex.Win32", "src\Windows\Perspex.Win32\Perspex.Win32.csproj", "{811A76CF-1CF6-440F-963B-BBE31BD72A82}"
 EndProject
@@ -87,6 +87,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perspex.Gtk", "src\Gtk\Perspex.Gtk\Perspex.Gtk.csproj", "{54F237D5-A70A-4752-9656-0C70B1A7B047}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perspex.Cairo", "src\Gtk\Perspex.Cairo\Perspex.Cairo.csproj", "{FB05AC90-89BA-4F2F-A924-F37875FB547C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Designer", "Designer", "{DA7710B6-538E-432E-B4DA-DB51C0C31BE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perspex.DesignerSupport.Generator", "Designer\Perspex.DesignerSupport.Generator\Perspex.DesignerSupport.Generator.csproj", "{0D8FF79E-ACAC-4875-9BD9-2E3CAC576040}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perspex.DesignerSupport", "Designer\Perspex.DesignerSupport\Perspex.DesignerSupport.csproj", "{B963F5D9-32C6-486B-BED4-F11DD3B3262E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesignerTestApp", "Designer\DesignerTestApp\DesignerTestApp.csproj", "{774E2D34-8DE8-4236-A116-7376A505FCF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -206,6 +214,18 @@ Global
 		{FB05AC90-89BA-4F2F-A924-F37875FB547C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB05AC90-89BA-4F2F-A924-F37875FB547C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB05AC90-89BA-4F2F-A924-F37875FB547C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D8FF79E-ACAC-4875-9BD9-2E3CAC576040}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D8FF79E-ACAC-4875-9BD9-2E3CAC576040}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D8FF79E-ACAC-4875-9BD9-2E3CAC576040}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D8FF79E-ACAC-4875-9BD9-2E3CAC576040}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B963F5D9-32C6-486B-BED4-F11DD3B3262E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B963F5D9-32C6-486B-BED4-F11DD3B3262E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B963F5D9-32C6-486B-BED4-F11DD3B3262E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B963F5D9-32C6-486B-BED4-F11DD3B3262E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{774E2D34-8DE8-4236-A116-7376A505FCF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{774E2D34-8DE8-4236-A116-7376A505FCF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{774E2D34-8DE8-4236-A116-7376A505FCF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{774E2D34-8DE8-4236-A116-7376A505FCF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -228,5 +248,8 @@ Global
 		{78CAFE33-DBEB-4132-8A28-81CFE8A4933C} = {9B9E3891-2366-4253-A952-D08BCEB71098}
 		{54F237D5-A70A-4752-9656-0C70B1A7B047} = {B9894058-278A-46B5-B6ED-AD613FCC03B3}
 		{FB05AC90-89BA-4F2F-A924-F37875FB547C} = {B9894058-278A-46B5-B6ED-AD613FCC03B3}
+		{0D8FF79E-ACAC-4875-9BD9-2E3CAC576040} = {DA7710B6-538E-432E-B4DA-DB51C0C31BE7}
+		{B963F5D9-32C6-486B-BED4-F11DD3B3262E} = {DA7710B6-538E-432E-B4DA-DB51C0C31BE7}
+		{774E2D34-8DE8-4236-A116-7376A505FCF0} = {DA7710B6-538E-432E-B4DA-DB51C0C31BE7}
 	EndGlobalSection
 EndGlobal
