@@ -1,4 +1,7 @@
-﻿namespace XamlTestApplication
+﻿using System.Threading.Tasks;
+using Perspex.Input;
+
+namespace XamlTestApplication
 {
     using System;
     using System.Diagnostics;
@@ -47,9 +50,26 @@
             var testCommand = ReactiveCommand.Create();
             testCommand.Subscribe(_ => Debug.WriteLine("Test command executed."));
             
-            var window = new MainWindow();
-            window.Show();
-            Application.Current.Run(window);
+            Spawner();
+            
+            Application.Current.Run(new Never());
+        }
+
+        static async void Spawner()
+        {
+            while (true)
+            {
+                var window = new MainWindow();
+                window.Show();
+                await Task.Delay(10);
+                window.Close();
+                await Task.Delay(10);
+            }
+        }
+
+        class Never : ICloseable
+        {
+            public event EventHandler Closed;
         }      
     }
 }
