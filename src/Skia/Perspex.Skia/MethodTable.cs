@@ -203,14 +203,6 @@ namespace Perspex.Skia
             }
         }
         
-        public static readonly MethodTable Instance = new Win32MethodTable();
-    }
-
-    class Win32MethodTable : MethodTable
-    {
-        [DllImport(@"libperspesk.dll")]
-        private static extern IntPtr GetPerspexMethodTable();
-
-        public Win32MethodTable() : base(GetPerspexMethodTable()) { }
+        public static readonly MethodTable Instance = new MethodTableImpl();
     }
 }

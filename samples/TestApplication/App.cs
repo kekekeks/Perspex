@@ -3,7 +3,12 @@
 
 using System;
 using Perspex;
+using Perspex.Cairo;
+using Perspex.Direct2D1;
+using Perspex.Gtk;
+using Perspex.Skia;
 using Perspex.Themes.Default;
+using Perspex.Win32;
 
 namespace TestApplication
 {
@@ -12,7 +17,8 @@ namespace TestApplication
         public App()
         {
             RegisterServices();
-            InitializeSubsystems((int)Environment.OSVersion.Platform);            
+            GtkPlatform.Initialize();
+            SkiaPlatform.Initialize();
             Styles = new DefaultTheme();
             Styles.Add(new SampleTabStyle());
         }

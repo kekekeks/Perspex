@@ -140,6 +140,10 @@
       <Project>{3E10A5FA-E8DA-48B1-AD44-6A5B6CB7750F}</Project>
       <Name>Perspex.Themes.Default</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Skia\Perspex.Skia.Desktop\Perspex.Skia.Desktop.csproj">
+      <Project>{925DD807-B651-475F-9F7C-CBEB974CE43D}</Project>
+      <Name>Perspex.Skia.Desktop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Windows\Perspex.Direct2D1\Perspex.Direct2D1.csproj">
       <Project>{3E908F67-5543-4879-A1DC-08EACE79B3CD}</Project>
       <Name>Perspex.Direct2D1</Name>
