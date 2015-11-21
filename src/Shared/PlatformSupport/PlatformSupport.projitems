@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MobileThreadingInterface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PclPlatformWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SharedPlatform.cs" />
   </ItemGroup>
