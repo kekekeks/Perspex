@@ -379,16 +379,18 @@ namespace TestApplication
                         DataTemplates = new DataTemplates
                         {
                             new FuncDataTemplate<Item>(x =>
+                            new Border {Margin =new Thickness(0, 25),Child = 
                                 new StackPanel
                                 {
                                     Gap = 4,
+                                    Margin = new Thickness(0, -25),
                                     Orientation = Orientation.Horizontal,
                                     Children = new Controls
                                     {
                                         new Image { Width = 50, Height = 50, Source = new Bitmap(GetImage("github_icon.png")) },
                                         new TextBlock { Text = x.Name, FontSize = 18 }
                                     }
-                                })
+                                }})
                         },
                         Children = new Controls
                         {
