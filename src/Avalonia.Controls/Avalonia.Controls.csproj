@@ -50,6 +50,8 @@
     <Compile Include="ContextMenu.cs" />
     <Compile Include="Design.cs" />
     <Compile Include="DockPanel.cs" />
+    <Compile Include="Embedding\Offscreen\OffscreenTopLevel.cs" />
+    <Compile Include="Embedding\Offscreen\OffscreenTopLevelImpl.cs" />
     <Compile Include="Expander.cs" />
     <Compile Include="Generators\ItemContainerInfo.cs" />
     <Compile Include="Generators\MenuItemContainerGenerator.cs" />
@@ -64,6 +66,8 @@
     <Compile Include="Platform\IEmbeddableWindowImpl.cs" />
     <Compile Include="Platform\ExportAvaloniaModuleAttribute.cs" />
     <Compile Include="Platform\ExportWindowingSubsystemAttribute.cs" />
+    <Compile Include="Remote\RemoteServer.cs" />
+    <Compile Include="Remote\Server\RemoteServerTopLevelImpl.cs" />
     <Compile Include="WindowBase.cs" />
     <Compile Include="WindowIcon.cs" />
     <Compile Include="IPseudoClasses.cs" />
@@ -266,6 +270,10 @@
     <ProjectReference Include="..\Avalonia.Styling\Avalonia.Styling.csproj">
       <Project>{F1BAA01A-F176-4C6A-B39D-5B40BB1B148F}</Project>
       <Name>Avalonia.Styling</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Remote\Avalonia.Remote.Protocol\Avalonia.Remote.Protocol.csproj">
+      <Project>{14c4a456-5d63-4081-b9f9-413c8d2f882c}</Project>
+      <Name>Avalonia.Remote.Protocol</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

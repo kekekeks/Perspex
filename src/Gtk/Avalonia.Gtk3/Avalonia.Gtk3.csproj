@@ -89,7 +89,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Avalonia.Visuals\Avalonia.Visuals.csproj">
       <Project>{EB582467-6ABB-43A1-B052-E981BA910E3A}</Project>
-      <Name>Avalonia.SceneGraph</Name>
+      <Name>Avalonia.Visuals</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

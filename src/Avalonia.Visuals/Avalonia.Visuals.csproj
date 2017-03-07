@@ -106,6 +106,7 @@
     <Compile Include="Platform\ILockedFramebuffer.cs" />
     <Compile Include="Platform\IModuleEnvironmentChecker.cs" />
     <Compile Include="Platform\IWritableBitmapImpl.cs" />
+    <Compile Include="Platform\LockedFramebuffer.cs" />
     <Compile Include="Platform\PixelFormat.cs" />
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\IRendererFactory.cs" />
