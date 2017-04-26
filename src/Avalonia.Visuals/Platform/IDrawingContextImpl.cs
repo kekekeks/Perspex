@@ -6,6 +6,11 @@ using Avalonia.Media;
 
 namespace Avalonia.Platform
 {
+
+    public interface IDrawingContextImplEx : IDrawingContextImpl
+    {
+        bool Colorize { get; set; }
+    }
     /// <summary>
     /// Defines the interface through which drawing occurs.
     /// </summary>

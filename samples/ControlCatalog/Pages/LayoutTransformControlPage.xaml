@@ -19,7 +19,9 @@
         <LayoutTransformControl.LayoutTransform>
           <RotateTransform Angle="{Binding #rotation.Value}"/>
         </LayoutTransformControl.LayoutTransform>
-        <TextBlock>Layout Transform</TextBlock>
+          <Border Margin="10" Padding="10" BorderThickness="1" BorderBrush="Gray" Background="#ffffa0">
+        <TextBlock FontSize="30">Layout Transform</TextBlock>
+          </Border>
       </LayoutTransformControl>
     </Grid>
   </DockPanel>

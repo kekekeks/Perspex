@@ -161,7 +161,8 @@ namespace Avalonia.Rendering.SceneGraph
                 using (context.PushPostTransform(m))
                 using (context.PushTransformContainer())
                 {
-                    var startLayer = opacity < 1 || visual.OpacityMask != null;
+                    var startLayer = opacity < 1 || visual.OpacityMask != null ||
+                                     (visual.RenderTransform != null && visual.RenderTransform.Value != Matrix.Identity);
 
                     forceRecurse = forceRecurse || node.Transform != contextImpl.Transform;
 

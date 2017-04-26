@@ -1,6 +1,8 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Rendering;
 
 namespace ControlCatalog
 {
@@ -10,7 +12,16 @@ namespace ControlCatalog
         {
             this.InitializeComponent();
             this.AttachDevTools();
-            Renderer.DrawDirtyRects = Renderer.DrawFps = true;
+            Renderer.DrawDirtyRects = true;
+            var content = (Control) Content;
+            content.FindControl<CheckBox>("RenderDirty")
+                .GetObservable(CheckBox.IsCheckedProperty).Subscribe(v => Renderer.DrawDirtyRects = v);
+            content.FindControl<CheckBox>("RenderLayers")
+                .GetObservable(CheckBox.IsCheckedProperty).Subscribe(v =>
+                {
+                    var deferred = Renderer as DeferredRenderer;
+                    deferred.DrawLayers = v;
+                });
         }
 
         private void InitializeComponent()

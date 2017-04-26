@@ -10,6 +10,7 @@ using Avalonia.RenderHelpers;
 using Avalonia.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Direct2D1.Effects;
 using SharpDX.Mathematics.Interop;
 using IBitmap = Avalonia.Media.Imaging.IBitmap;
 
@@ -18,7 +19,7 @@ namespace Avalonia.Direct2D1.Media
     /// <summary>
     /// Draws using Direct2D1.
     /// </summary>
-    public class DrawingContextImpl : IDrawingContextImpl, IDisposable
+    public class DrawingContextImpl : IDrawingContextImplEx, IDisposable
     {
         private readonly IVisualBrushRenderer _visualBrushRenderer;
         private readonly SharpDX.Direct2D1.RenderTarget _renderTarget;
@@ -89,14 +90,47 @@ namespace Avalonia.Direct2D1.Media
         /// <param name="destRect">The rect in the output to draw to.</param>
         public void DrawImage(IBitmapImpl source, double opacity, Rect sourceRect, Rect destRect)
         {
+            
             using (var d2d = ((BitmapImpl)source).GetDirect2DBitmap(_renderTarget))
             {
-                _renderTarget.DrawBitmap(
-                    d2d,
-                    destRect.ToSharpDX(),
-                    (float)opacity,
-                    BitmapInterpolationMode.Linear,
-                    sourceRect.ToSharpDX());
+                if (!Colorize)
+                {
+                    _renderTarget.DrawBitmap(
+                        d2d,
+                        destRect.ToSharpDX(),
+                        (float) opacity,
+                        BitmapInterpolationMode.Linear,
+                        sourceRect.ToSharpDX());
+                    return;
+                }
+                var dc = _renderTarget.QueryInterface<DeviceContext>();
+                using(var bmp = ((BitmapImpl)source).GetDirect2DBitmap(_renderTarget))
+                using (var shadowEffect = new Shadow(dc))
+                using (var affineTransformEffect = new AffineTransform2D(dc))
+                using (var compositeEffect = new Composite(dc))
+                
+
+                {
+                    shadowEffect.Color = new RawColor4(0, 1, 0, 0.9f);
+                    shadowEffect.BlurStandardDeviation = 10;
+                    affineTransformEffect.SetInputEffect(0, shadowEffect);
+                    affineTransformEffect.TransformMatrix = Matrix.CreateTranslation(5, 5).ToDirect2D();
+                    compositeEffect.InputCount = 2;
+                    compositeEffect.SetInputEffect(0, shadowEffect);
+                    shadowEffect.SetInput(0, bmp, true);
+                    compositeEffect.SetInput(1, bmp, true);
+                    try
+                    {
+                        PushOpacity(opacity);
+
+                        dc.DrawImage(compositeEffect);
+                    }
+                    finally
+                    {
+                        PopOpacity();
+                    }
+                }
+
             }
         }
 
@@ -443,5 +477,7 @@ namespace Avalonia.Direct2D1.Media
         {
             PopLayer();
         }
+
+        public bool Colorize { get; set; }
     }
 }

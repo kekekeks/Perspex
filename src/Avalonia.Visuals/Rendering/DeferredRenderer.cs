@@ -101,6 +101,8 @@ namespace Avalonia.Rendering
         /// <inheritdoc/>
         public bool DrawDirtyRects { get; set; }
 
+        public bool DrawLayers { get; set; }
+
         /// <summary>
         /// Gets or sets a path to which rendered frame should be rendered for debugging.
         /// </summary>
@@ -287,8 +289,10 @@ namespace Avalonia.Rendering
                 {
                     var clientRect = new Rect(scene.Size);
 
+                    int idx = 0;
                     foreach (var layer in scene.Layers)
                     {
+                        idx++;
                         var bitmap = _layers[layer.LayerRoot].Bitmap;
                         var sourceRect = new Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
 
@@ -296,7 +300,9 @@ namespace Avalonia.Rendering
                         {
                             context.PushGeometryClip(layer.GeometryClip);
                         }
-
+                        var ex = context as IDrawingContextImplEx;
+                        if (ex != null && idx != 1 && DrawLayers)
+                            ex.Colorize = true;
                         if (layer.OpacityMask == null)
                         {
                             context.DrawImage(bitmap, layer.Opacity, sourceRect, clientRect);
@@ -305,7 +311,8 @@ namespace Avalonia.Rendering
                         {
                             context.DrawImage(bitmap, layer.OpacityMask, layer.OpacityMaskRect, sourceRect);
                         }
-
+                        if (ex != null)
+                            ex.Colorize = false;
                         if (layer.GeometryClip != null)
                         {
                             context.PopGeometryClip();
