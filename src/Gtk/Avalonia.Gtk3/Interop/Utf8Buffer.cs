@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Avalonia.Gtk3.Interop
 {
-    class Utf8Buffer : SafeHandle
+    public class Utf8Buffer : SafeHandle
     {
         private GCHandle _gchandle;
         private byte[] _data;

@@ -31,34 +31,5 @@ namespace Avalonia.Cairo
         {
             return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
         }
-
-        public static Rect ToAvalonia(this Pango.Rectangle rect)
-        {
-            return new Rect(
-                Pango.Units.ToDouble(rect.X),
-                Pango.Units.ToDouble(rect.Y),
-                Pango.Units.ToDouble(rect.Width),
-                Pango.Units.ToDouble(rect.Height));
-        }
-
-        public static Pango.Weight ToCairo(this Avalonia.Media.FontWeight weight)
-        {
-			return (Pango.Weight)weight;
-        }
-
-        public static Pango.Alignment ToCairo(this Avalonia.Media.TextAlignment alignment)
-        {
-            if (alignment == Avalonia.Media.TextAlignment.Left)
-            {
-                return Pango.Alignment.Left;
-            }
-
-            if (alignment == Avalonia.Media.TextAlignment.Center)
-            {
-                return Pango.Alignment.Center;
-            }
-
-            return Pango.Alignment.Right;
-        }
     }
 }

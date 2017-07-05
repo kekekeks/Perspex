@@ -16,7 +16,7 @@ using gdouble = System.Double;
 
 namespace Avalonia.Gtk3.Interop
 {
-    static class Native
+    public static class Native
     {
         public static class D
         {

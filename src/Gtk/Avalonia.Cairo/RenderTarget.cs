@@ -7,7 +7,6 @@ using Avalonia.Cairo.Media;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Rendering;
-using Gtk;
 using DrawingContext = Avalonia.Media.DrawingContext;
 
 namespace Avalonia.Cairo
@@ -20,7 +19,7 @@ namespace Avalonia.Cairo
     public class RenderTarget : IRenderTarget
     {
         private readonly Surface _surface;
-        private readonly Func<Gdk.Drawable> _drawableAccessor;
+        private readonly Func<Surface> _drawableAccessor;
 
 
         /// <summary>
@@ -29,9 +28,9 @@ namespace Avalonia.Cairo
         /// <param name="window">The window.</param>
         /// <param name="width">The width of the window.</param>
         /// <param name="height">The height of the window.</param>
-        public RenderTarget(Func<Gdk.Drawable> drawable)
+        public RenderTarget(Func<Surface> surfaceAccessor)
         {
-            _drawableAccessor = drawable;
+            _drawableAccessor = surfaceAccessor;
         }
 
         public RenderTarget(ImageSurface surface)

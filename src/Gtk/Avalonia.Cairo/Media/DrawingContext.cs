@@ -34,16 +34,6 @@ namespace Avalonia.Cairo.Media
             _visualBrushRenderer = visualBrushRenderer;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DrawingContext"/> class.
-        /// </summary>
-        /// <param name="surface">The GDK drawable.</param>
-        public DrawingContext(Gdk.Drawable drawable, IVisualBrushRenderer visualBrushRenderer)
-        {
-            _context = Gdk.CairoHelper.Create(drawable);
-            _visualBrushRenderer = visualBrushRenderer;
-        }
-
         private Matrix _transform = Matrix.Identity;
         /// <summary>
         /// Gets the current transform of the drawing context.
@@ -82,9 +72,9 @@ namespace Avalonia.Cairo.Media
         /// <param name="destRect">The rect in the output to draw to.</param>
         public void DrawImage(IBitmapImpl bitmap, double opacity, Rect sourceRect, Rect destRect)
         {
-            var pixbuf = bitmap as Gdk.Pixbuf;
+            var pixbuf = bitmap as BitmapImpl;
             var rtb = bitmap as RenderTargetBitmapImpl;
-            var size = new Size(pixbuf?.Width ?? rtb.PixelWidth, pixbuf?.Height ?? rtb.PixelHeight);
+            var size = new Size(pixbuf?.PixelWidth ?? rtb.PixelWidth, pixbuf?.PixelHeight ?? rtb.PixelHeight);
             var scale = new Vector(destRect.Width / sourceRect.Width, destRect.Height / sourceRect.Height);
 
             _context.Save();
@@ -93,21 +83,13 @@ namespace Avalonia.Cairo.Media
 
             _context.PushGroup();
 
-            if (pixbuf != null)
-            {
-                Gdk.CairoHelper.SetSourcePixbuf(
-                    _context,
-                    pixbuf,
-                    -sourceRect.X + destRect.X,
-                    -sourceRect.Y + destRect.Y);
-            }
-            else
-            {
-                _context.SetSourceSurface(
-                        rtb.Surface,
-                        (int)(-sourceRect.X + destRect.X),
-                        (int)(-sourceRect.Y + destRect.Y));
-            }
+            var surface = pixbuf?.Surface ?? rtb.Surface;
+
+            _context.SetSourceSurface(
+                surface,
+                (int) (-sourceRect.X + destRect.X),
+                (int) (-sourceRect.Y + destRect.Y));
+            
 
             _context.Rectangle(destRect.ToCairo());
             _context.Fill();

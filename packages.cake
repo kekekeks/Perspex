@@ -368,23 +368,6 @@ public class Packages
                 OutputDirectory = parameters.NugetRoot
             },
             ///////////////////////////////////////////////////////////////////////////////
-            // Avalonia.Gtk
-            ///////////////////////////////////////////////////////////////////////////////
-            new NuGetPackSettings()
-            {
-                Id = "Avalonia.Gtk",
-                Dependencies = new []
-                {
-                    new NuSpecDependency() { Id = "Avalonia", Version = parameters.Version }
-                },
-                Files = new []
-                {
-                    new NuSpecContent { Source = "Avalonia.Gtk.dll", Target = "lib/net45" }
-                },
-                BasePath = context.Directory("./src/Gtk/Avalonia.Gtk/bin/" + parameters.DirSuffix),
-                OutputDirectory = parameters.NugetRoot
-            },
-            ///////////////////////////////////////////////////////////////////////////////
             // Avalonia.Gtk3
             ///////////////////////////////////////////////////////////////////////////////
             new NuGetPackSettings()
@@ -410,12 +393,13 @@ public class Packages
                 Dependencies = new []
                 {
                     new NuSpecDependency() { Id = "Avalonia", Version = parameters.Version }
+                    new NuSpecDependency() { Id = "Avalonia.Cairo.Bindings", Version = "0.0.1" }
                 },
                 Files = new []
                 {
-                    new NuSpecContent { Source = "Avalonia.Cairo.dll", Target = "lib/net45" }
+                    new NuSpecContent { Source = "Avalonia.Cairo.dll", Target = "lib/netstandard1.3" }
                 },
-                BasePath = context.Directory("./src/Gtk/Avalonia.Cairo/bin/" + parameters.DirSuffix),
+                BasePath = context.Directory("./src/Gtk/Avalonia.Cairo/bin/" + parameters.DirSuffix + "netstandard1.3"),
                 OutputDirectory = parameters.NugetRoot
             },
             ///////////////////////////////////////////////////////////////////////////////
