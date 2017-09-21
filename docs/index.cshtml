@@ -1,0 +1,10 @@
+Title: Avalonia UI Framework
+NoSidebar: true
+NoTitle: true
+---
+
+@{
+var home = Context.Documents[Docs.Pages].FirstOrDefault(x=>x.FilePath(Keys.RelativeFilePath)?.FullPath?.StartsWith("home") == (bool?)true);
+Console.WriteLine("Found home at "+home.FilePath(Keys.RelativeFilePath));
+}
+@Html.Raw(home);

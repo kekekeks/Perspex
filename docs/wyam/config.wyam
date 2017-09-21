@@ -1,0 +1,11 @@
+#recipe Docs
+
+Settings[Keys.Host] = "avaloniaui.net";
+Settings[DocsKeys.Title] = "Avalonia UI Framework";
+
+var glob = "src/**/{!.git,!bin,!obj,!packages,!*.Tests,!external,!portable.xaml.github,}/**/*.cs";
+
+Settings[DocsKeys.SourceFiles] =  new[]{glob, "../"+glob};
+
+// Uncomment this to skip API generation for faster debugging
+// Settings[DocsKeys.SourceFiles] =  new string[]{"spec"};

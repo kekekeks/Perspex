@@ -1,4 +1,5 @@
-# The Avalonia UI Framework
+ShowInNavbar: false
+---
 
 Cross platform .NET UI Framework with bindings and XAML
 
