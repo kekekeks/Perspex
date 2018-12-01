@@ -73,25 +73,26 @@ partial class Build : NukeBuild
     });
 
 
-    private Target BuildImpl => _ => _.Executes(() =>
-    {
-        var data = parameters;
-        if (data.IsRunningOnWindows)
-            MSBuild(data.MSBuildSolution, c => c
-                .SetConfiguration(data.Configuration)
-                .SetVerbosity(MSBuildVerbosity.Minimal)
-                .AddProperty("PackageVersion", parameters.Version)
-                .AddProperty("iOSRoslynPathHackRequired", "true")
-                .SetToolsVersion(MSBuildToolsVersion._15_0)
-                .AddTargets("Restore", "Build")
-            );
+    Target BuildImpl => _ => _
+        .Executes(() =>
+        {
+            var data = parameters;
+            if (data.IsRunningOnWindows)
+                MSBuild(data.MSBuildSolution, c => c
+                    .SetConfiguration(data.Configuration)
+                    .SetVerbosity(MSBuildVerbosity.Minimal)
+                    .AddProperty("PackageVersion", parameters.Version)
+                    .AddProperty("iOSRoslynPathHackRequired", "true")
+                    .SetToolsVersion(MSBuildToolsVersion._15_0)
+                    .AddTargets("Restore", "Build")
+                );
 
-        else
-            DotNetBuild(parameters.MSBuildSolution, c => c
-                .AddProperty("PackageVersion", parameters.Version)
-                .SetConfiguration(parameters.Configuration)
-            );
-    });
+            else
+                DotNetBuild(parameters.MSBuildSolution, c => c
+                    .AddProperty("PackageVersion", parameters.Version)
+                    .SetConfiguration(parameters.Configuration)
+                );
+        });
     
     
     void RunCoreTest(string project, bool coreOnly = false)
@@ -121,7 +122,7 @@ partial class Build : NukeBuild
         }
     }
 
-    private Target RunUnitTestsImpl => _ => _
+    Target RunUnitTestsImpl => _ => _
         .OnlyWhen(() => !parameters.SkipTests)
         .Executes(() =>
         {
@@ -156,7 +157,7 @@ partial class Build : NukeBuild
 
     [PackageExecutable("JetBrains.dotMemoryUnit", "dotMemoryUnit.exe")] readonly Tool DotMemoryUnit;
     
-    private Target RunLeakTestsImpl => _ => _
+    Target RunLeakTestsImpl => _ => _
         .OnlyWhen(() => !parameters.SkipTests && parameters.IsRunningOnWindows)
         .Executes(() =>
         {
@@ -199,52 +200,80 @@ partial class Build : NukeBuild
                 timeout: 120_000);
         });
 
-    Target ZipFilesImpl => _ => _.Executes(() =>
-    {
-        var data = parameters;
-        Zip(data.ZipCoreArtifacts, data.BinRoot);
+    Target ZipFilesImpl => _ => _
+        .Executes(() =>
+        {
+            var data = parameters;
+            Zip(data.ZipCoreArtifacts, data.BinRoot);
 
-        Zip(data.ZipNuGetArtifacts, data.NugetRoot);
+            Zip(data.ZipNuGetArtifacts, data.NugetRoot);
 
-        Zip(data.ZipTargetControlCatalogDesktopDir,
-            GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.dll").Concat(
-                GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.config")).Concat(
-                GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.so")).Concat(
-                GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.dylib")).Concat(
-                GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.exe")));
-    });
+            Zip(data.ZipTargetControlCatalogDesktopDir,
+                GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.dll").Concat(
+                    GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.config")).Concat(
+                    GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.so")).Concat(
+                    GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.dylib")).Concat(
+                    GlobFiles(data.ZipSourceControlCatalogDesktopDir, "*.exe")));
+        });
 
     void DotNetCorePack()
     {
         
     }
 
-    private Target CreateNugetPackagesImpl => _ => _.Executes(() =>
-    {
-        if (parameters.IsRunningOnWindows)
+    Target CreateNugetPackagesImpl => _ => _
+        .Executes(() =>
+        {
+            if (parameters.IsRunningOnWindows)
 
-            MSBuild(parameters.MSBuildSolution, c => c
-                .SetConfiguration(parameters.Configuration)
-                .SetVerbosity(MSBuildVerbosity.Minimal)
-                .AddProperty("PackageVersion", parameters.Version)
-                .AddProperty("iOSRoslynPathHackRequired", "true")
-                .SetToolsVersion(MSBuildToolsVersion._15_0)
-                .AddTargets("Restore", "Pack"));
-        else
-            DotNetPack(parameters.MSBuildSolution, c =>
-                c.SetConfiguration(parameters.Configuration)
-                    .AddProperty("PackageVersion", parameters.Version));
-    });
+                MSBuild(parameters.MSBuildSolution, c => c
+                    .SetConfiguration(parameters.Configuration)
+                    .SetVerbosity(MSBuildVerbosity.Minimal)
+                    .AddProperty("PackageVersion", parameters.Version)
+                    .AddProperty("iOSRoslynPathHackRequired", "true")
+                    .SetToolsVersion(MSBuildToolsVersion._15_0)
+                    .AddTargets("Restore", "Pack"));
+            else
+                DotNetPack(parameters.MSBuildSolution, c =>
+                    c.SetConfiguration(parameters.Configuration)
+                        .AddProperty("PackageVersion", parameters.Version));
+        });
 
-    Target Compile => _ => _.DependsOn(CleanImpl, BuildImpl);
-    Target RunTests => _ => _.DependsOn(Compile, RunUnitTestsImpl, RunRenderTestsImpl, RunDesignerTestsImpl, RunLeakTestsImpl);
-    Target Package => _ => _.DependsOn(RunTests, CreateNugetPackagesImpl);
-    Target CiAppVeyor => _ => _.DependsOn(Package, ZipFilesImpl);
-    Target CiTravis => _ => _.DependsOn(RunTests);
-    Target CiAsuzeLinux => _ => _.DependsOn(RunTests);
-    Target CiAsuzeOSX => _ => _.DependsOn(Package, ZipFilesImpl);
-    Target CiAsuzeWindows => _ => _.DependsOn(Package, ZipFilesImpl);
+    Target Compile => _ => _
+        .DependsOn(CleanImpl)
+        .DependsOn(BuildImpl);
+    
+    Target RunTests => _ => _
+        .DependsOn(Compile)
+        .DependsOn(RunUnitTestsImpl)
+        .DependsOn(RunRenderTestsImpl)
+        .DependsOn(RunDesignerTestsImpl)
+        .DependsOn(RunLeakTestsImpl);
+    
+    Target Package => _ => _
+        .DependsOn(RunTests)
+        .DependsOn(CreateNugetPackagesImpl);
+    
+    Target CiAppVeyor => _ => _
+        .DependsOn(Package)
+        .DependsOn(ZipFilesImpl);
+    
+    Target CiTravis => _ => _
+        .DependsOn(RunTests);
+    
+    Target CiAsuzeLinux => _ => _
+        .DependsOn(RunTests);
+    
+    Target CiAsuzeOSX => _ => _
+        .DependsOn(Package)
+        .DependsOn(ZipFilesImpl);
+    
+    // NOTE: order of targets here is not about execution order. For this, use DependsOn or Before/After on target
+    Target CiAsuzeWindows => _ => _
+        .DependsOn(Package)
+        .DependsOn(ZipFilesImpl);
 
+    // Nice!
     public static int Main() =>
         RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Execute<Build>(x => x.Package)
