@@ -19,51 +19,50 @@ using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.Xunit.XunitTasks;
 
+
+/*
+ Before editing this file, install support plugin for your IDE,
+ running and debugging a particular target (optionally without deps) would be way easier
+ ReSharper/Rider - https://plugins.jetbrains.com/plugin/10803-nuke-support
+ VSCode - https://marketplace.visualstudio.com/items?itemName=nuke.support
+ 
+ */
+
 partial class Build : NukeBuild
-{
-    // NOTE: those could be readonly fields
-    [Parameter("configuration")]
-    public string NukeArgConfiguration { get; set; }
-    
-    [Parameter("skip-tests")]
-    public bool NukeArgSkipTests { get; set; }
-    
-    [Parameter("force-nuget-version")]
-    public string NukeArgForceNugetVersion { get; set; }
-    
-    BuildParameters parameters { get; set; }
+{   
+    BuildParameters Parameters { get; set; }
     protected override void OnBuildInitialized()
     {
-        parameters = new BuildParameters(this);
+        Parameters = new BuildParameters(this);
         Information("Building version {0} of Avalonia ({1}) using version {2} of Nuke.", 
-            parameters.Version,
-            parameters.Configuration,
+            Parameters.Version,
+            Parameters.Configuration,
             typeof(NukeBuild).Assembly.GetName().Version.ToString());
 
-        if (parameters.IsLocalBuild)
+        if (Parameters.IsLocalBuild)
         {
-            Information("Repository Name: " + parameters.RepositoryName);
-            Information("Repository Branch: " + parameters.RepositoryBranch);
+            Information("Repository Name: " + Parameters.RepositoryName);
+            Information("Repository Branch: " + Parameters.RepositoryBranch);
         }
-        Information("Configuration: " + parameters.Configuration);
-        Information("IsLocalBuild: " + parameters.IsLocalBuild);
-        Information("IsRunningOnUnix: " + parameters.IsRunningOnUnix);
-        Information("IsRunningOnWindows: " + parameters.IsRunningOnWindows);
-        Information("IsRunningOnAppVeyor: " + parameters.IsRunningOnAppVeyor);
-        Information("IsRunnongOnAzure:" + parameters.IsRunningOnAzure);
-        Information("IsPullRequest: " + parameters.IsPullRequest);
-        Information("IsMainRepo: " + parameters.IsMainRepo);
-        Information("IsMasterBranch: " + parameters.IsMasterBranch);
-        Information("IsReleaseBranch: " + parameters.IsReleaseBranch);
-        Information("IsTagged: " + parameters.IsTagged);
-        Information("IsReleasable: " + parameters.IsReleasable);
-        Information("IsMyGetRelease: " + parameters.IsMyGetRelease);
-        Information("IsNuGetRelease: " + parameters.IsNuGetRelease);
+        Information("Configuration: " + Parameters.Configuration);
+        Information("IsLocalBuild: " + Parameters.IsLocalBuild);
+        Information("IsRunningOnUnix: " + Parameters.IsRunningOnUnix);
+        Information("IsRunningOnWindows: " + Parameters.IsRunningOnWindows);
+        Information("IsRunningOnAppVeyor: " + Parameters.IsRunningOnAppVeyor);
+        Information("IsRunnongOnAzure:" + Parameters.IsRunningOnAzure);
+        Information("IsPullRequest: " + Parameters.IsPullRequest);
+        Information("IsMainRepo: " + Parameters.IsMainRepo);
+        Information("IsMasterBranch: " + Parameters.IsMasterBranch);
+        Information("IsReleaseBranch: " + Parameters.IsReleaseBranch);
+        Information("IsTagged: " + Parameters.IsTagged);
+        Information("IsReleasable: " + Parameters.IsReleasable);
+        Information("IsMyGetRelease: " + Parameters.IsMyGetRelease);
+        Information("IsNuGetRelease: " + Parameters.IsNuGetRelease);
     }
 
-    Target CleanImpl => _ => _.Executes(() =>
+    Target Clean => _ => _.Executes(() =>
     {
-        var data = parameters;
+        var data = Parameters;
         DeleteDirectories(data.BuildDirs);
         EnsureCleanDirectories(data.BuildDirs);
         EnsureCleanDirectory(data.ArtifactsDir);
@@ -73,24 +72,25 @@ partial class Build : NukeBuild
     });
 
 
-    Target BuildImpl => _ => _
+    Target Compile => _ => _
+        .DependsOn(Clean)
         .Executes(() =>
         {
-            var data = parameters;
+            var data = Parameters;
             if (data.IsRunningOnWindows)
                 MSBuild(data.MSBuildSolution, c => c
                     .SetConfiguration(data.Configuration)
                     .SetVerbosity(MSBuildVerbosity.Minimal)
-                    .AddProperty("PackageVersion", parameters.Version)
+                    .AddProperty("PackageVersion", Parameters.Version)
                     .AddProperty("iOSRoslynPathHackRequired", "true")
                     .SetToolsVersion(MSBuildToolsVersion._15_0)
                     .AddTargets("Restore", "Build")
                 );
 
             else
-                DotNetBuild(parameters.MSBuildSolution, c => c
-                    .AddProperty("PackageVersion", parameters.Version)
-                    .SetConfiguration(parameters.Configuration)
+                DotNetBuild(Parameters.MSBuildSolution, c => c
+                    .AddProperty("PackageVersion", Parameters.Version)
+                    .SetConfiguration(Parameters.Configuration)
                 );
         });
     
@@ -109,13 +109,13 @@ partial class Build : NukeBuild
             {
                 c = c
                     .SetProjectFile(project)
-                    .SetConfiguration(parameters.Configuration)
+                    .SetConfiguration(Parameters.Configuration)
                     .SetFramework(fw)
                     .EnableNoBuild()
                     .EnableNoRestore();
                 // NOTE: I can see that we could maybe add another extension method "Switch" or "If" to make this more  convenient
-                if (parameters.PublishTestResults)
-                    c = c.SetLogger("trx").SetResultsDirectory(parameters.TestResultsRoot);
+                if (Parameters.PublishTestResults)
+                    c = c.SetLogger("trx").SetResultsDirectory(Parameters.TestResultsRoot);
                 return c;
             });
         }
@@ -123,8 +123,9 @@ partial class Build : NukeBuild
     
     [Solution] readonly Solution Solution;
 
-    Target RunUnitTestsImpl => _ => _
-        .OnlyWhen(() => !parameters.SkipTests)
+    Target RunCoreLibsTests => _ => _
+        .OnlyWhen(() => !Parameters.SkipTests)
+        .DependsOn(Compile)
         .Executes(() =>
         {
             // NOTE: if you get an instance 'Solution', you can get the path to the projects  very easily here:
@@ -144,16 +145,18 @@ partial class Build : NukeBuild
 
         });
 
-    Target RunRenderTestsImpl => _ => _
-        .OnlyWhen(() => !parameters.SkipTests && parameters.IsRunningOnWindows)
+    Target RunRenderTests => _ => _
+        .OnlyWhen(() => !Parameters.SkipTests && Parameters.IsRunningOnWindows)
+        .DependsOn(Compile)
         .Executes(() =>
         {
             RunCoreTest("./tests/Avalonia.Skia.RenderTests/Avalonia.Skia.RenderTests.csproj", true);
             RunCoreTest("./tests/Avalonia.Direct2D1.RenderTests/Avalonia.Direct2D1.RenderTests.csproj", true);
         });
     
-    Target RunDesignerTestsImpl => _ => _
-        .OnlyWhen(() => !parameters.SkipTests && parameters.IsRunningOnWindows)
+    Target RunDesignerTests => _ => _
+        .OnlyWhen(() => !Parameters.SkipTests && Parameters.IsRunningOnWindows)
+        .DependsOn(Compile)
         .Executes(() =>
         {
             RunCoreTest("./tests/Avalonia.DesignerSupport.Tests", false);
@@ -161,8 +164,9 @@ partial class Build : NukeBuild
 
     [PackageExecutable("JetBrains.dotMemoryUnit", "dotMemoryUnit.exe")] readonly Tool DotMemoryUnit;
 
-    private Target RunLeakTestsImpl => _ => _
-        .OnlyWhen(() => !parameters.SkipTests && parameters.IsRunningOnWindows)
+    Target RunLeakTests => _ => _
+        .OnlyWhen(() => !Parameters.SkipTests && Parameters.IsRunningOnWindows)
+        .DependsOn(Compile)
         .Executes(() =>
         {
 
@@ -197,26 +201,18 @@ partial class Build : NukeBuild
                 throw new Exception("Leak Tests failed");
             }
             
-            // NOTE: rough alternative following. Zero exit code is checked automatically
+
             var testAssembly = "tests\\Avalonia.LeakTests\\bin\\Release\\net461\\Avalonia.LeakTests.dll";
             DotMemoryUnit(
                 $"{XunitPath.DoubleQuoteIfNeeded()} --propagate-exit-code -- {testAssembly}",
                 timeout: 120_000);
-            
-            // NOTE: other alternative
-            ProcessTasks.StartProcess(
-                    toolPath: ToolPathResolver.GetPackageExecutable(
-                        "JetBrains.dotMemoryUnit",
-                        "dotMemoryUnit.exe"),
-                    arguments: "args",
-                    timeout: 120_000)
-                .AssertWaitForExit();
         });
 
-    Target ZipFilesImpl => _ => _
+    Target ZipFiles => _ => _
+        .After(CreateNugetPackages, Compile, RunCoreLibsTests, Package)    
         .Executes(() =>
         {
-            var data = parameters;
+            var data = Parameters;
             Zip(data.ZipCoreArtifacts, data.BinRoot);
 
             Zip(data.ZipNuGetArtifacts, data.NugetRoot);
@@ -234,42 +230,39 @@ partial class Build : NukeBuild
         
     }
 
-    Target CreateNugetPackagesImpl => _ => _
+    Target CreateNugetPackages => _ => _
+        .DependsOn(Compile)
+        .After(RunTests)
         .Executes(() =>
         {
-            if (parameters.IsRunningOnWindows)
+            if (Parameters.IsRunningOnWindows)
 
-                MSBuild(parameters.MSBuildSolution, c => c
-                    .SetConfiguration(parameters.Configuration)
+                MSBuild(Parameters.MSBuildSolution, c => c
+                    .SetConfiguration(Parameters.Configuration)
                     .SetVerbosity(MSBuildVerbosity.Minimal)
-                    .AddProperty("PackageVersion", parameters.Version)
+                    .AddProperty("PackageVersion", Parameters.Version)
                     .AddProperty("iOSRoslynPathHackRequired", "true")
                     .SetToolsVersion(MSBuildToolsVersion._15_0)
                     .AddTargets("Restore", "Pack"));
             else
-                DotNetPack(parameters.MSBuildSolution, c =>
-                    c.SetConfiguration(parameters.Configuration)
-                        .AddProperty("PackageVersion", parameters.Version));
+                DotNetPack(Parameters.MSBuildSolution, c =>
+                    c.SetConfiguration(Parameters.Configuration)
+                        .AddProperty("PackageVersion", Parameters.Version));
         });
-
-    Target Compile => _ => _
-        .DependsOn(CleanImpl)
-        .DependsOn(BuildImpl);
     
     Target RunTests => _ => _
-        .DependsOn(Compile)
-        .DependsOn(RunUnitTestsImpl)
-        .DependsOn(RunRenderTestsImpl)
-        .DependsOn(RunDesignerTestsImpl)
-        .DependsOn(RunLeakTestsImpl);
+        .DependsOn(RunCoreLibsTests)
+        .DependsOn(RunRenderTests)
+        .DependsOn(RunDesignerTests)
+        .DependsOn(RunLeakTests);
     
     Target Package => _ => _
         .DependsOn(RunTests)
-        .DependsOn(CreateNugetPackagesImpl);
+        .DependsOn(CreateNugetPackages);
     
     Target CiAppVeyor => _ => _
         .DependsOn(Package)
-        .DependsOn(ZipFilesImpl);
+        .DependsOn(ZipFiles);
     
     Target CiTravis => _ => _
         .DependsOn(RunTests);
@@ -279,14 +272,13 @@ partial class Build : NukeBuild
     
     Target CiAsuzeOSX => _ => _
         .DependsOn(Package)
-        .DependsOn(ZipFilesImpl);
+        .DependsOn(ZipFiles);
     
-    // NOTE: order of targets here is not about execution order. For this, use DependsOn or Before/After on target
     Target CiAsuzeWindows => _ => _
         .DependsOn(Package)
-        .DependsOn(ZipFilesImpl);
+        .DependsOn(ZipFiles);
 
-    // Nice!
+    
     public static int Main() =>
         RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Execute<Build>(x => x.Package)

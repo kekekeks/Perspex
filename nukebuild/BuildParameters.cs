@@ -13,6 +13,15 @@ using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 
 public partial class Build
 {
+    [Parameter("configuration")]
+    public string NukeArgConfiguration { get; set; }
+    
+    [Parameter("skip-tests")]
+    public bool NukeArgSkipTests { get; set; }
+    
+    [Parameter("force-nuget-version")]
+    public string NukeArgForceNugetVersion { get; set; }
+    
     public class BuildParameters
     {
         public string Configuration { get; }
