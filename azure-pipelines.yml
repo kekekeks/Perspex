@@ -14,8 +14,7 @@ jobs:
     displayName: 'Install Cake'
     inputs:
       script: |
-        dotnet tool install -g Cake.Tool --version 0.30.0
-  
+         dotnet tool install --global Nuke.GlobalTool --version 0.12.3
   - task: CmdLine@2
     displayName: 'Run Cake'
     inputs:
@@ -23,7 +22,7 @@ jobs:
         export PATH="$PATH:$HOME/.dotnet/tools"
         dotnet --info
         printenv
-        dotnet cake build.cake --target="CiAzureLinux" --configuration="Release"
+        nuke --target="CiAzureLinux" --configuration="Release"
 
   - task: PublishTestResults@2
     inputs:
@@ -58,7 +57,7 @@ jobs:
     displayName: 'Install Cake'
     inputs:
       script: |
-        dotnet tool install -g Cake.Tool --version 0.30.0
+       dotnet tool install --global Nuke.GlobalTool --version 0.12.3 
 
   - task: CmdLine@2
     displayName: 'Run Cake'
@@ -72,7 +71,7 @@ jobs:
         export PATH="$PATH:$HOME/.dotnet/tools"
         dotnet --info
         printenv
-        dotnet cake build.cake --target="CiAzureOSX" --configuration="Release"
+        nuke --target="CiAzureOSX" --configuration="Release"
 
   - task: PublishTestResults@2
     inputs:
@@ -100,14 +99,14 @@ jobs:
     displayName: 'Install Cake'
     inputs:
       script: |
-        dotnet tool install -g Cake.Tool --version 0.30.0
+       dotnet tool install --global Nuke.GlobalTool --version 0.12.3 
 
   - task: CmdLine@2
     displayName: 'Run Cake'
     inputs:
       script: |
         set PATH=%PATH%;%USERPROFILE%\.dotnet\tools
-        dotnet cake build.cake --target="CiAzureWindows" --configuration="Release"
+        nuke --target="CiAzureWindows" --configuration="Release"
       
   - task: PublishTestResults@2
     inputs:
