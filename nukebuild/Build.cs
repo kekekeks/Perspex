@@ -94,7 +94,6 @@ partial class Build : NukeBuild
                 );
         });
     
-    
     void RunCoreTest(string project, bool coreOnly = false)
     {
         if(!project.EndsWith(".csproj"))
@@ -121,11 +120,16 @@ partial class Build : NukeBuild
             });
         }
     }
+    
+    [Solution] readonly Solution Solution;
 
     Target RunUnitTestsImpl => _ => _
         .OnlyWhen(() => !parameters.SkipTests)
         .Executes(() =>
         {
+            // NOTE: if you get an instance 'Solution', you can get the path to the projects  very easily here:
+            var project = Solution.GetProject("Avalonia.Base.UnitTests");
+            
             RunCoreTest("./tests/Avalonia.Base.UnitTests", false);
             RunCoreTest("./tests/Avalonia.Controls.UnitTests", false);
             RunCoreTest("./tests/Avalonia.Input.UnitTests", false);
@@ -156,8 +160,8 @@ partial class Build : NukeBuild
         });
 
     [PackageExecutable("JetBrains.dotMemoryUnit", "dotMemoryUnit.exe")] readonly Tool DotMemoryUnit;
-    
-    Target RunLeakTestsImpl => _ => _
+
+    private Target RunLeakTestsImpl => _ => _
         .OnlyWhen(() => !parameters.SkipTests && parameters.IsRunningOnWindows)
         .Executes(() =>
         {
@@ -198,6 +202,15 @@ partial class Build : NukeBuild
             DotMemoryUnit(
                 $"{XunitPath.DoubleQuoteIfNeeded()} --propagate-exit-code -- {testAssembly}",
                 timeout: 120_000);
+            
+            // NOTE: other alternative
+            ProcessTasks.StartProcess(
+                    toolPath: ToolPathResolver.GetPackageExecutable(
+                        "JetBrains.dotMemoryUnit",
+                        "dotMemoryUnit.exe"),
+                    arguments: "args",
+                    timeout: 120_000)
+                .AssertWaitForExit();
         });
 
     Target ZipFilesImpl => _ => _
