@@ -11,14 +11,17 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.MSBuild;
+using Nuke.Common.Utilities;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using static Nuke.Common.Tools.Xunit.XunitTasks;
 
 partial class Build : NukeBuild
 {
+    // NOTE: those could be readonly fields
     [Parameter("configuration")]
     public string NukeArgConfiguration { get; set; }
     
@@ -80,7 +83,6 @@ partial class Build : NukeBuild
                 .AddProperty("PackageVersion", parameters.Version)
                 .AddProperty("iOSRoslynPathHackRequired", "true")
                 .SetToolsVersion(MSBuildToolsVersion._15_0)
-                .ClearTargets()
                 .AddTargets("Restore", "Build")
             );
 
@@ -109,8 +111,9 @@ partial class Build : NukeBuild
                     .SetProjectFile(project)
                     .SetConfiguration(parameters.Configuration)
                     .SetFramework(fw)
-                    .SetNoBuild(true)
-                    .SetNoRestore(true);
+                    .EnableNoBuild()
+                    .EnableNoRestore();
+                // NOTE: I can see that we could maybe add another extension method "Switch" or "If" to make this more  convenient
                 if (parameters.PublishTestResults)
                     c = c.SetLogger("trx").SetResultsDirectory(parameters.TestResultsRoot);
                 return c;
@@ -150,9 +153,9 @@ partial class Build : NukeBuild
         {
             RunCoreTest("./tests/Avalonia.DesignerSupport.Tests", false);
         });
-    
-    
 
+    [PackageExecutable("JetBrains.dotMemoryUnit", "dotMemoryUnit.exe")] readonly Tool DotMemoryUnit;
+    
     private Target RunLeakTestsImpl => _ => _
         .OnlyWhen(() => !parameters.SkipTests && parameters.IsRunningOnWindows)
         .Executes(() =>
@@ -188,6 +191,12 @@ partial class Build : NukeBuild
             {
                 throw new Exception("Leak Tests failed");
             }
+            
+            // NOTE: rough alternative following. Zero exit code is checked automatically
+            var testAssembly = "tests\\Avalonia.LeakTests\\bin\\Release\\net461\\Avalonia.LeakTests.dll";
+            DotMemoryUnit(
+                $"{XunitPath.DoubleQuoteIfNeeded()} --propagate-exit-code -- {testAssembly}",
+                timeout: 120_000);
         });
 
     Target ZipFilesImpl => _ => _.Executes(() =>
@@ -220,7 +229,6 @@ partial class Build : NukeBuild
                 .AddProperty("PackageVersion", parameters.Version)
                 .AddProperty("iOSRoslynPathHackRequired", "true")
                 .SetToolsVersion(MSBuildToolsVersion._15_0)
-                .ClearTargets()
                 .AddTargets("Restore", "Pack"));
         else
             DotNetPack(parameters.MSBuildSolution, c =>
