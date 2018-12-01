@@ -229,8 +229,8 @@ partial class Build : NukeBuild
     });
 
     Target Compile => _ => _.DependsOn(CleanImpl, BuildImpl);
-    Target RunTests => _ => _.DependsOn(Compile,RunUnitTestsImpl, RunRenderTestsImpl, RunDesignerTestsImpl, RunLeakTestsImpl);
-    Target Package => _ => _.DependsOn(RunUnitTestsImpl, CreateNugetPackagesImpl);
+    Target RunTests => _ => _.DependsOn(Compile, RunUnitTestsImpl, RunRenderTestsImpl, RunDesignerTestsImpl, RunLeakTestsImpl);
+    Target Package => _ => _.DependsOn(RunTests, CreateNugetPackagesImpl);
     Target CiAppVeyor => _ => _.DependsOn(Package, ZipFilesImpl);
     Target CiTravis => _ => _.DependsOn(RunTests);
     Target CiAsuzeLinux => _ => _.DependsOn(RunTests);

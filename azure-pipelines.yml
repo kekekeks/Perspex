@@ -11,12 +11,12 @@ jobs:
         sudo apt-get install castxml
 
   - task: CmdLine@2
-    displayName: 'Install Cake'
+    displayName: 'Install Nuke'
     inputs:
       script: |
          dotnet tool install --global Nuke.GlobalTool --version 0.12.3
   - task: CmdLine@2
-    displayName: 'Run Cake'
+    displayName: 'Run Nuke'
     inputs:
       script: |
         export PATH="$PATH:$HOME/.dotnet/tools"
@@ -54,13 +54,13 @@ jobs:
       script: brew install castxml
 
   - task: CmdLine@2
-    displayName: 'Install Cake'
+    displayName: 'Install Nuke'
     inputs:
       script: |
        dotnet tool install --global Nuke.GlobalTool --version 0.12.3 
 
   - task: CmdLine@2
-    displayName: 'Run Cake'
+    displayName: 'Run Nuke'
     inputs:
       script: |
         export COREHOST_TRACE=0
@@ -96,13 +96,13 @@ jobs:
     vmImage: 'vs2017-win2016'
   steps:
   - task: CmdLine@2
-    displayName: 'Install Cake'
+    displayName: 'Install Nuke'
     inputs:
       script: |
        dotnet tool install --global Nuke.GlobalTool --version 0.12.3 
 
   - task: CmdLine@2
-    displayName: 'Run Cake'
+    displayName: 'Run Nuke'
     inputs:
       script: |
         set PATH=%PATH%;%USERPROFILE%\.dotnet\tools
