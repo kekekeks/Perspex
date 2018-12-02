@@ -105,19 +105,15 @@ partial class Build : NukeBuild
             if(!fw.StartsWith("netcoreapp") && coreOnly)
                 continue;
             Information("Running for " + fw);
-            DotNetTest(c =>
-            {
-                c = c
-                    .SetProjectFile(project)
-                    .SetConfiguration(Parameters.Configuration)
-                    .SetFramework(fw)
-                    .EnableNoBuild()
-                    .EnableNoRestore();
-                // NOTE: I can see that we could maybe add another extension method "Switch" or "If" to make this more  convenient
-                if (Parameters.PublishTestResults)
-                    c = c.SetLogger("trx").SetResultsDirectory(Parameters.TestResultsRoot);
-                return c;
-            });
+            DotNetTest(c => c
+                .SetProjectFile(project)
+                .SetConfiguration(Parameters.Configuration)
+                .SetFramework(fw)
+                .EnableNoBuild()
+                .EnableNoRestore()
+                .When(Parameters.PublishTestResults, cc => cc
+                    .SetLogger("trx")
+                    .SetResultsDirectory(Parameters.TestResultsRoot)));
         }
     }
     
