@@ -241,9 +241,9 @@ partial class Build : NukeBuild
                     .SetToolsVersion(MSBuildToolsVersion._15_0)
                     .AddTargets("Restore", "Pack"));
             else
-                DotNetPack(Parameters.MSBuildSolution, c =>
-                    c.SetConfiguration(Parameters.Configuration)
-                        .AddProperty("PackageVersion", Parameters.Version));
+                DotNetPack(Parameters.MSBuildSolution, c => c
+                    .SetConfiguration(Parameters.Configuration)
+                    .AddProperty("PackageVersion", Parameters.Version));
         });
     
     Target RunTests => _ => _
