@@ -153,6 +153,20 @@ namespace Avalonia.OpenGL
             return Marshal.PtrToStringAnsi(rv);
         }
 
+        public delegate bool EglGetConfigs(IntPtr display, IntPtr[] configs, int configSize, out int numConfig);
+        [GlEntryPoint("eglGetConfigs")]
+        public EglGetConfigs GetConfigsNative { get; }
+
+        public IntPtr[] GetConfigs(IntPtr display)
+        {
+            if (!GetConfigsNative(display, null, 0, out var count))
+                return Array.Empty<IntPtr>();
+            var configs = new IntPtr[count];
+            if (!GetConfigsNative(display, configs, configs.Length, out count))
+                return Array.Empty<IntPtr>();
+            return configs;
+        }
+
         // ReSharper restore UnassignedGetOnlyAutoProperty
     }
 }

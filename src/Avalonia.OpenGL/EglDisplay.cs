@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Avalonia.Platform.Interop;
 using static Avalonia.OpenGL.EglConsts;
@@ -98,9 +99,34 @@ namespace Avalonia.OpenGL
             {
                 if (!_egl.BindApi(cfg.Api))
                     continue;
+
+                var configs = _egl.GetConfigs(_display).Select(config =>
+                {
+                    int Get(int attr)
+                    {
+                        _egl.GetConfigAttrib(_display, config, attr, out var rv);
+                        return rv;
+                    }
+
+                    return new
+                    {
+                        Id = config,
+                        Red = Get(EGL_RED_SIZE),
+                        Blue = Get(EGL_BLUE_SIZE),
+                        Green = Get(EGL_GREEN_SIZE),
+                        Alpha = Get(EGL_ALPHA_SIZE),
+                        StencilSize = Get(EGL_STENCIL_SIZE),
+                        DepthSize = Get(EGL_DEPTH_SIZE),
+                        SurfaceType = Get(EGL_SURFACE_TYPE),
+                        RenderableType = Get(EGL_RENDERABLE_TYPE),
+                    };
+
+
+                }).ToArray();
+
                 foreach(var surfaceType in new[]{EGL_PBUFFER_BIT|EGL_WINDOW_BIT, EGL_WINDOW_BIT})
                 foreach(var stencilSize in new[]{8, 1, 0})
-                foreach (var depthSize in new []{8, 1, 0})
+                foreach (var depthSize in new []{24, 16, 8, 1, 0})
                 {
                     var attribs = new[]
                     {
@@ -143,7 +169,8 @@ namespace Avalonia.OpenGL
             if((_surfaceType|EGL_PBUFFER_BIT) == 0)
                 throw new InvalidOperationException("Platform doesn't support PBUFFER surfaces");
             var shareCtx = (EglContext)share;
-            var ctx = _egl.CreateContext(_display, _config, shareCtx?.Context ?? IntPtr.Zero, _contextAttributes);
+            var ctx = _egl.CreateContext(_display, _config, shareCtx?.Context ?? IntPtr.Zero,
+                new[]{EGL_CONTEXT_OPENGL_DEBUG, 1}.Concat(_contextAttributes).ToArray());
             if (ctx == IntPtr.Zero)
                 throw OpenGlException.GetFormattedException("eglCreateContext", _egl);
             var surf = _egl.CreatePBufferSurface(_display, _config, new[]

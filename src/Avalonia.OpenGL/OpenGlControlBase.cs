@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.InteropServices;
 using Avalonia.Controls;
+using Avalonia.Logging;
 using Avalonia.Media;
 using Avalonia.OpenGL.Imaging;
 using static Avalonia.OpenGL.GlConsts;
@@ -85,6 +87,9 @@ namespace Avalonia.OpenGL
             {
                 _oldSize = Bounds.Size;
                 var gl = _context.Display.GlInterface;
+                gl.Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+                gl.DebugMessageCallback?.Invoke(OnDebugMessage, IntPtr.Zero);
+                gl.DebugMessageControl?.Invoke(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, null, true);
                 var oneArr = new int[1];
                 gl.GenFramebuffers(1, oneArr);
                 _fb = oneArr[0];
@@ -96,7 +101,7 @@ namespace Avalonia.OpenGL
                 ResizeTexture(gl);
 
                 gl.FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
-                gl.DrawBuffers(1, new[] { GL_COLOR_ATTACHMENT0 });
+
                 var status = gl.CheckFramebufferStatus(GL_FRAMEBUFFER);
                 if (status != GL_FRAMEBUFFER_COMPLETE)
                 {
@@ -109,23 +114,64 @@ namespace Avalonia.OpenGL
             return true;
         }
 
-        void ResizeTexture(GlInterface gl)
+        static void OnDebugMessage(int source, int type, int id, int severity, int length, IntPtr message, IntPtr userParam)
         {
+            var err = Marshal.PtrToStringAnsi(message, length);
+            Console.WriteLine(err);
+        }
+
+        private bool HasError(GlInterface gl)
+        {
+            int err;
+            var rv = false;
+            while ((err = gl.GetError()) != GL_NO_ERROR)
+            {
+                Logger.TryGet(LogEventLevel.Error)?.Log("OpenGL", "OpenGLControlBase", "Error: ", err);
+                rv = true;
+            }
+
+            return rv;
+        }
+
+        bool ResizeTexture(GlInterface gl)
+        {
+            int internalFormat = _context.Display.Type == GlDisplayType.OpenGLES ? GL_RGBA : GL_RGBA4;
             var size = GetPixelSize();
-            gl.TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+            gl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat,
                 size.Width, size.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, IntPtr.Zero);
             gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            if (HasError(gl))
+                return false;
 
+            var oldRenderBuffer = _renderBuffer;
             //TODO: destroy the previous one
             var oneArr = new int[1];
             gl.GenRenderbuffers(1, oneArr);
             _renderBuffer = oneArr[0];
             gl.BindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);
-            gl.RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.Width, size.Height);
+
+            if (HasError(gl))
+                return false;
+
+            var depthFormat = _context.Display.Type == GlDisplayType.OpenGLES ?
+                GL_DEPTH_COMPONENT16 :
+                GL_DEPTH_COMPONENT;
+
+            gl.RenderbufferStorage(GL_RENDERBUFFER, depthFormat, size.Width, size.Height);
+
+            HasError(gl);
+            /*if (HasError(gl))
+                return false;
+*/
             gl.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _renderBuffer);
+
+            if (HasError(gl))
+                return false;
             using (_bitmap.Lock())
-                _bitmap.SetTexture(_texture, GL_RGBA8, size, 1);
+                _bitmap.SetTexture(_texture, GL_RGBA, size, 1);
+                //_bitmap.SetTexture(_texture, internalFormat, size, 1);
+            return true;
         }
         
         //TODO: dpi

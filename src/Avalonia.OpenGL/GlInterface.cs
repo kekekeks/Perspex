@@ -336,7 +336,17 @@ namespace Avalonia.OpenGL
         [GlEntryPoint("glDeleteShader")]
         public GlDeleteShader DeleteShader { get; }
 
-        
+        public delegate void DebugMessageCallbackDelegate(int source, int type, int id, int severity, int length,
+            IntPtr message, IntPtr userParam);
+
+        public delegate void GlDebugMessageCallback(DebugMessageCallbackDelegate cb, IntPtr userParam);
+        [GlEntryPoint("glDebugMessageCallback", "glDebugMessageCallbackKHR", Optional = true)]
+        public GlDebugMessageCallback DebugMessageCallback { get; }
+
+        public delegate void GlDebugMessageControl(int source, int type, int severity, int count, int[] ids, bool enabled);
+        [GlEntryPoint("glDebugMessageControl", "glDebugMessageControlKHR", Optional = true)]
+        public GlDebugMessageControl DebugMessageControl { get; }
+
         // ReSharper restore UnassignedGetOnlyAutoProperty
     }
 }
